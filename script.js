@@ -274,6 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.addEventListener('touchmove', function(e) {
         if (isDragging) {
+            e.preventDefault(); // 阻止默认滚动行为，防止整个界面下移
             const deltaY = e.touches[0].clientY - startY;
             if (deltaY > 0) {
                 currentDeltaY = deltaY;
