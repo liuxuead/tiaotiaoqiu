@@ -4,16 +4,102 @@ document.addEventListener('DOMContentLoaded', function() {
     const discShape = document.querySelector('.disc-shape');
     const discRope = document.querySelector('.disc-rope');
     const ball = document.querySelector('.center-ball');
+    const ropeSegments = [
+        document.getElementById('rope-segment-1'),
+        document.getElementById('rope-segment-2'),
+        document.getElementById('rope-segment-3'),
+        document.getElementById('rope-segment-4'),
+        document.getElementById('rope-segment-5'),
+        document.getElementById('rope-segment-6'),
+        document.getElementById('rope-segment-7'),
+        document.getElementById('rope-segment-8')
+    ];
     let isDragging = false;
     let startY = 0;
     let currentDeltaY = 0;
     let isAnimating = false;
     
     // 初始红球位置
-    const ballInitialY = 164;
+    const ballInitialY = 70;
     
-    // 最大拖动距离（四个绿绳长度 = 22 * 4 = 88像素）
-    const maxDragDistance = 88;
+    // 最大拖动距离（八个绿绳长度 = 22 * 8 = 176像素）
+    const maxDragDistance = 176;
+    
+    // 颜色定义
+    const colors = {
+        green: '#388E3C',
+        yellow: '#FFEB3B',
+        orange: '#FF9800',
+        red: '#F44336'
+    };
+    
+    // 根据进度计算颜色（0-1）
+    function getColor(progress) {
+        if (progress <= 0) return colors.green;
+        if (progress <= 0.33) {
+            // 绿色 -> 黄色
+            const t = progress / 0.33;
+            return interpolateColor(colors.green, colors.yellow, t);
+        }
+        if (progress <= 0.66) {
+            // 黄色 -> 橙色
+            const t = (progress - 0.33) / 0.33;
+            return interpolateColor(colors.yellow, colors.orange, t);
+        }
+        // 橙色 -> 红色
+        const t = (progress - 0.66) / 0.34;
+        return interpolateColor(colors.orange, colors.red, t);
+    }
+    
+    // 颜色插值函数
+    function interpolateColor(color1, color2, t) {
+        const r1 = parseInt(color1.slice(1, 3), 16);
+        const g1 = parseInt(color1.slice(3, 5), 16);
+        const b1 = parseInt(color1.slice(5, 7), 16);
+        const r2 = parseInt(color2.slice(1, 3), 16);
+        const g2 = parseInt(color2.slice(3, 5), 16);
+        const b2 = parseInt(color2.slice(5, 7), 16);
+        
+        const r = Math.round(r1 + (r2 - r1) * t);
+        const g = Math.round(g1 + (g2 - g1) * t);
+        const b = Math.round(b1 + (b2 - b1) * t);
+        
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+    
+    // 更新绿绳颜色 - 从底部开始变色
+    function updateRopeColor(depth) {
+        const progress = Math.min(depth / maxDragDistance, 1);
+        
+        // 当接近最大距离时（80%以上），所有线段都变成红色
+        if (progress >= 0.8) {
+            ropeSegments.forEach(segment => {
+                segment.setAttribute('stroke', colors.red);
+            });
+        } else {
+            // 8段绳子，从底部（第8段）开始变色
+            // 进度0-0.125：第8段变色
+            // 进度0.125-0.25：第7、8段变色
+            // 进度0.25-0.375：第6、7、8段变色
+            // 进度0.375-0.5：第5、6、7、8段变色
+            // 进度0.5-0.625：第4、5、6、7、8段变色
+            // 进度0.625-0.75：第3、4、5、6、7、8段变色
+            // 进度0.75-0.8：第2、3、4、5、6、7、8段变色
+            
+            for (let i = 0; i < 8; i++) {
+                const segmentProgress = Math.max(0, (progress - (7 - i) * 0.125) / 0.125);
+                const color = getColor(segmentProgress);
+                ropeSegments[i].setAttribute('stroke', color);
+            }
+        }
+    }
+    
+    // 重置绿绳颜色
+    function resetRopeColor() {
+        ropeSegments.forEach(segment => {
+            segment.setAttribute('stroke', colors.green);
+        });
+    }
     
     // 触发弹回效果的函数
     function triggerBounce() {
@@ -21,10 +107,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         isDragging = false;
         isAnimating = true;
-        const bounceHeight = Math.min(currentDeltaY * 2, 300); // 脱手时弹得更高
+        const bounceHeight = Math.min(currentDeltaY * 2, 60); // 限制弹起高度，防止球消失
         discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
         discSvg.style.transform = 'scaleY(1)';
         discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
+        
+        // 重置绿绳颜色
+        resetRopeColor();
         
         // 红球弹起动画 - 使用SVG属性
         ball.style.transition = 'none';
@@ -58,14 +147,16 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(animateBall);
     }
     
-    // 鼠标事件 - 拖动绿绳
-    discRope.addEventListener('mousedown', function(e) {
-        if (isAnimating) return;
-        isDragging = true;
-        startY = e.clientY;
-        currentDeltaY = 0;
-        discSvg.style.transition = 'none';
-        e.preventDefault();
+    // 鼠标事件 - 拖动绿绳（所有段都可以拖动）
+    ropeSegments.forEach(segment => {
+        segment.addEventListener('mousedown', function(e) {
+            if (isAnimating) return;
+            isDragging = true;
+            startY = e.clientY;
+            currentDeltaY = 0;
+            discSvg.style.transition = 'none';
+            e.preventDefault();
+        });
     });
     
     document.addEventListener('mousemove', function(e) {
@@ -82,12 +173,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
-                // 倒帐篷效果：减小形变程度
-                const scaleY = 1 + depth / 200;
+                // 倒帐篷效果：增大形变程度一倍
+                const scaleY = 1 + depth / 100;
                 discSvg.style.transform = `scaleY(${scaleY})`;
                 
-                // 调整阴影
-                discSvg.style.filter = `drop-shadow(0 ${depth / 3}px ${depth / 2}px rgba(0, 0, 0, 0.4))`;
+                // 调整阴影：增大阴影效果
+                discSvg.style.filter = `drop-shadow(0 ${depth / 2}px ${depth}px rgba(0, 0, 0, 0.4))`;
+                
+                // 更新绿绳颜色
+                updateRopeColor(depth);
             }
         }
     });
@@ -96,10 +190,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isDragging && currentDeltaY > 0) {
             isDragging = false;
             isAnimating = true;
-            const bounceHeight = Math.min(currentDeltaY * 1.5, 200);
+            const bounceHeight = Math.min(currentDeltaY * 1.5, 60); // 限制弹起高度，防止球消失
             discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             discSvg.style.transform = 'scaleY(1)';
             discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
+            
+            // 重置绿绳颜色
+            resetRopeColor();
             
             // 红球弹起动画 - 使用SVG属性
             ball.style.transition = 'none';
@@ -136,17 +233,22 @@ document.addEventListener('DOMContentLoaded', function() {
             discSvg.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             discSvg.style.transform = 'scaleY(1)';
             discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
+            
+            // 重置绿绳颜色
+            resetRopeColor();
         }
     });
     
-    // 触摸事件 - 拖动绿绳
-    discRope.addEventListener('touchstart', function(e) {
-        if (isAnimating) return;
-        isDragging = true;
-        startY = e.touches[0].clientY;
-        currentDeltaY = 0;
-        discSvg.style.transition = 'none';
-        e.preventDefault();
+    // 触摸事件 - 拖动绿绳（所有段都可以拖动）
+    ropeSegments.forEach(segment => {
+        segment.addEventListener('touchstart', function(e) {
+            if (isAnimating) return;
+            isDragging = true;
+            startY = e.touches[0].clientY;
+            currentDeltaY = 0;
+            discSvg.style.transition = 'none';
+            e.preventDefault();
+        });
     });
     
     document.addEventListener('touchmove', function(e) {
@@ -163,12 +265,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
-                // 倒帐篷效果：减小形变程度
-                const scaleY = 1 + depth / 200;
+                // 倒帐篷效果：增大形变程度一倍
+                const scaleY = 1 + depth / 100;
                 discSvg.style.transform = `scaleY(${scaleY})`;
                 
-                // 调整阴影
-                discSvg.style.filter = `drop-shadow(0 ${depth / 3}px ${depth / 2}px rgba(0, 0, 0, 0.4))`;
+                // 调整阴影：增大阴影效果
+                discSvg.style.filter = `drop-shadow(0 ${depth / 2}px ${depth}px rgba(0, 0, 0, 0.4))`;
+                
+                // 更新绿绳颜色
+                updateRopeColor(depth);
             }
         }
     });
@@ -177,10 +282,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isDragging && currentDeltaY > 0) {
             isDragging = false;
             isAnimating = true;
-            const bounceHeight = Math.min(currentDeltaY * 1.5, 200);
+            const bounceHeight = Math.min(currentDeltaY * 1.5, 60); // 限制弹起高度，防止球消失
             discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             discSvg.style.transform = 'scaleY(1)';
             discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
+            
+            // 重置绿绳颜色
+            resetRopeColor();
             
             // 红球弹起动画 - 使用SVG属性
             ball.style.transition = 'none';
@@ -217,6 +325,9 @@ document.addEventListener('DOMContentLoaded', function() {
             discSvg.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             discSvg.style.transform = 'scaleY(1)';
             discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
+            
+            // 重置绿绳颜色
+            resetRopeColor();
         }
     });
 });
