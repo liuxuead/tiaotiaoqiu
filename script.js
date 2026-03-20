@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         isDragging = false;
         isAnimating = true;
-        const bounceHeight = Math.min(currentDeltaY * 2, 192); // 最大力时弹起4个自身高度（48px * 4）
+        const bounceHeight = Math.min(currentDeltaY * 2, 480); // 最大力时弹起10个自身高度（48px * 10）
         discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
         discSvg.style.transform = 'scaleY(1)';
         discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isDragging && currentDeltaY > 0) {
             isDragging = false;
             isAnimating = true;
-            const bounceHeight = Math.min(currentDeltaY * 1.5, 192); // 最大力时弹起4个自身高度（48px * 4）
+            const bounceHeight = Math.min(currentDeltaY * 1.5, 480); // 最大力时弹起10个自身高度（48px * 10）
             discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             discSvg.style.transform = 'scaleY(1)';
             discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isDragging && currentDeltaY > 0) {
             isDragging = false;
             isAnimating = true;
-            const bounceHeight = Math.min(currentDeltaY * 1.5, 192); // 最大力时弹起4个自身高度（48px * 4）
+            const bounceHeight = Math.min(currentDeltaY * 1.5, 480); // 最大力时弹起10个自身高度（48px * 10）
             discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             discSvg.style.transform = 'scaleY(1)';
             discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
