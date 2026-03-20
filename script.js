@@ -262,6 +262,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // 在SVG容器上也绑定触摸事件，增加可触摸区域
+    discSvg.addEventListener('touchstart', function(e) {
+        if (isAnimating) return;
+        isDragging = true;
+        startY = e.touches[0].clientY;
+        currentDeltaY = 0;
+        discSvg.style.transition = 'none';
+        e.preventDefault();
+    });
+    
     document.addEventListener('touchmove', function(e) {
         if (isDragging) {
             const deltaY = e.touches[0].clientY - startY;
