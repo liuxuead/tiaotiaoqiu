@@ -9,13 +9,20 @@
 <body>
     <div class="game-container">
         <div class="elastic-disc">
-            <svg class="disc-svg" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet">
+            <svg class="disc-svg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet">
                 <!-- 倒帐篷形状 -->
-                <path class="disc-shape" d="M 200 180 L 380 20 Q 200 60 20 20 Z" fill="#4CAF50" />
+                <path class="disc-shape" d="M 200 110 L 380 20 Q 200 60 20 20 Z" fill="#4CAF50" />
                 <!-- 红球 -->
-                <circle class="center-ball" cx="200" cy="164" r="8" fill="#ff4444" />
-                <!-- 底部绿绳 -->
-                <line class="disc-rope" x1="200" y1="188" x2="200" y2="210" stroke="#388E3C" stroke-width="16" stroke-linecap="round" />
+                <circle class="center-ball" cx="200" cy="70" r="24" fill="#ff4444" />
+                <!-- 底部绿绳 - 分成8段实现渐变色 -->
+                <line class="disc-rope" id="rope-segment-1" x1="200" y1="110" x2="200" y2="115" stroke="#388E3C" stroke-width="16" stroke-linecap="butt" />
+                <line class="disc-rope" id="rope-segment-2" x1="200" y1="115" x2="200" y2="120" stroke="#388E3C" stroke-width="16" stroke-linecap="butt" />
+                <line class="disc-rope" id="rope-segment-3" x1="200" y1="120" x2="200" y2="125" stroke="#388E3C" stroke-width="16" stroke-linecap="butt" />
+                <line class="disc-rope" id="rope-segment-4" x1="200" y1="125" x2="200" y2="130" stroke="#388E3C" stroke-width="16" stroke-linecap="butt" />
+                <line class="disc-rope" id="rope-segment-5" x1="200" y1="130" x2="200" y2="135" stroke="#388E3C" stroke-width="16" stroke-linecap="butt" />
+                <line class="disc-rope" id="rope-segment-6" x1="200" y1="135" x2="200" y2="140" stroke="#388E3C" stroke-width="16" stroke-linecap="butt" />
+                <line class="disc-rope" id="rope-segment-7" x1="200" y1="140" x2="200" y2="145" stroke="#388E3C" stroke-width="16" stroke-linecap="butt" />
+                <line class="disc-rope" id="rope-segment-8" x1="200" y1="145" x2="200" y2="150" stroke="#388E3C" stroke-width="16" stroke-linecap="round" />
             </svg>
         </div>
     </div>
