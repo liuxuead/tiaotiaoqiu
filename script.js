@@ -12,7 +12,23 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('rope-segment-5'),
         document.getElementById('rope-segment-6'),
         document.getElementById('rope-segment-7'),
-        document.getElementById('rope-segment-8')
+        document.getElementById('rope-segment-8'),
+        document.getElementById('rope-segment-9'),
+        document.getElementById('rope-segment-10'),
+        document.getElementById('rope-segment-11'),
+        document.getElementById('rope-segment-12'),
+        document.getElementById('rope-segment-13'),
+        document.getElementById('rope-segment-14'),
+        document.getElementById('rope-segment-15'),
+        document.getElementById('rope-segment-16'),
+        document.getElementById('rope-segment-17'),
+        document.getElementById('rope-segment-18'),
+        document.getElementById('rope-segment-19'),
+        document.getElementById('rope-segment-20'),
+        document.getElementById('rope-segment-21'),
+        document.getElementById('rope-segment-22'),
+        document.getElementById('rope-segment-23'),
+        document.getElementById('rope-segment-24')
     ];
     let isDragging = false;
     let startY = 0;
@@ -77,17 +93,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 segment.setAttribute('stroke', colors.red);
             });
         } else {
-            // 8段绳子，从底部（第8段）开始变色
-            // 进度0-0.125：第8段变色
-            // 进度0.125-0.25：第7、8段变色
-            // 进度0.25-0.375：第6、7、8段变色
-            // 进度0.375-0.5：第5、6、7、8段变色
-            // 进度0.5-0.625：第4、5、6、7、8段变色
-            // 进度0.625-0.75：第3、4、5、6、7、8段变色
-            // 进度0.75-0.8：第2、3、4、5、6、7、8段变色
+            // 24段绳子，从底部（第24段）开始变色
+            const segmentCount = 24;
+            const segmentStep = 0.8 / segmentCount;
             
-            for (let i = 0; i < 8; i++) {
-                const segmentProgress = Math.max(0, (progress - (7 - i) * 0.125) / 0.125);
+            for (let i = 0; i < segmentCount; i++) {
+                const segmentProgress = Math.max(0, (progress - (segmentCount - 1 - i) * segmentStep) / segmentStep);
                 const color = getColor(segmentProgress);
                 ropeSegments[i].setAttribute('stroke', color);
             }
@@ -107,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         isDragging = false;
         isAnimating = true;
-        const bounceHeight = Math.min(currentDeltaY * 2, 60); // 限制弹起高度，防止球消失
+        const bounceHeight = Math.min(currentDeltaY * 2, 192); // 最大力时弹起4个自身高度（48px * 4）
         discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
         discSvg.style.transform = 'scaleY(1)';
         discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
@@ -190,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isDragging && currentDeltaY > 0) {
             isDragging = false;
             isAnimating = true;
-            const bounceHeight = Math.min(currentDeltaY * 1.5, 60); // 限制弹起高度，防止球消失
+            const bounceHeight = Math.min(currentDeltaY * 1.5, 192); // 最大力时弹起4个自身高度（48px * 4）
             discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             discSvg.style.transform = 'scaleY(1)';
             discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
@@ -282,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isDragging && currentDeltaY > 0) {
             isDragging = false;
             isAnimating = true;
-            const bounceHeight = Math.min(currentDeltaY * 1.5, 60); // 限制弹起高度，防止球消失
+            const bounceHeight = Math.min(currentDeltaY * 1.5, 192); // 最大力时弹起4个自身高度（48px * 4）
             discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
             discSvg.style.transform = 'scaleY(1)';
             discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
