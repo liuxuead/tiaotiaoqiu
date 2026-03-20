@@ -1,20 +1,70 @@
 document.addEventListener('DOMContentLoaded', function() {
     const disc = document.querySelector('.elastic-disc');
-    const discSurface = document.querySelector('.disc-surface');
+    const discSvg = document.querySelector('.disc-svg');
+    const discShape = document.querySelector('.disc-shape');
+    const discRope = document.querySelector('.disc-rope');
     const ball = document.querySelector('.center-ball');
     let isDragging = false;
     let startY = 0;
     let currentDeltaY = 0;
     let isAnimating = false;
     
-    // 鼠标事件
-    ball.addEventListener('mousedown', function(e) {
+    // 初始红球位置
+    const ballInitialY = 164;
+    
+    // 最大拖动距离（四个绿绳长度 = 22 * 4 = 88像素）
+    const maxDragDistance = 88;
+    
+    // 触发弹回效果的函数
+    function triggerBounce() {
+        if (!isDragging) return;
+        
+        isDragging = false;
+        isAnimating = true;
+        const bounceHeight = Math.min(currentDeltaY * 2, 300); // 脱手时弹得更高
+        discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+        discSvg.style.transform = 'scaleY(1)';
+        discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
+        
+        // 红球弹起动画 - 使用SVG属性
+        ball.style.transition = 'none';
+        let startTime = null;
+        const duration = 1200; // 脱手时动画时间更长
+        
+        function animateBall(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = (timestamp - startTime) / duration;
+            
+            if (progress < 1) {
+                // 弹起阶段 (0-0.35)
+                if (progress < 0.35) {
+                    const bounceProgress = progress / 0.35;
+                    const y = ballInitialY - bounceHeight * Math.sin(bounceProgress * Math.PI);
+                    ball.setAttribute('cy', y);
+                } 
+                // 下落阶段 (0.35-1)
+                else {
+                    const fallProgress = (progress - 0.35) / 0.65;
+                    const y = ballInitialY - bounceHeight * Math.sin((1 - fallProgress) * Math.PI / 2);
+                    ball.setAttribute('cy', y);
+                }
+                requestAnimationFrame(animateBall);
+            } else {
+                ball.setAttribute('cy', ballInitialY);
+                isAnimating = false;
+            }
+        }
+        
+        requestAnimationFrame(animateBall);
+    }
+    
+    // 鼠标事件 - 拖动绿绳
+    discRope.addEventListener('mousedown', function(e) {
         if (isAnimating) return;
         isDragging = true;
         startY = e.clientY;
         currentDeltaY = 0;
-        discSurface.style.transition = 'none';
-        ball.style.transition = 'none';
+        discSvg.style.transition = 'none';
         e.preventDefault();
     });
     
@@ -23,18 +73,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const deltaY = e.clientY - startY;
             if (deltaY > 0) {
                 currentDeltaY = deltaY;
-                ball.style.transform = `translateY(${deltaY}px)`;
                 const depth = deltaY;
-                // 计算变形参数
-                const scaleY = Math.max(0.6, 1 - depth / 150); // 垂直方向压缩
-                const scaleX = 1 + depth / 300; // 水平方向稍微拉伸
-                const translateY = depth * 0.3; // 整体向下移动
                 
-                // 应用变换，形成碗状凹陷效果
-                discSurface.style.transform = `translateY(${translateY}px) scaleY(${scaleY}) scaleX(${scaleX})`;
+                // 检查是否超过最大拖动距离
+                if (depth >= maxDragDistance) {
+                    // 脱手弹回
+                    triggerBounce();
+                    return;
+                }
                 
-                // 调整阴影，增强立体感
-                discSurface.style.boxShadow = `0 ${depth / 8}px ${depth / 4}px rgba(0, 0, 0, 0.3), inset 0 ${depth / 4}px ${depth / 2}px rgba(0, 0, 0, 0.3)`;
+                // 倒帐篷效果：减小形变程度
+                const scaleY = 1 + depth / 200;
+                discSvg.style.transform = `scaleY(${scaleY})`;
+                
+                // 调整阴影
+                discSvg.style.filter = `drop-shadow(0 ${depth / 3}px ${depth / 2}px rgba(0, 0, 0, 0.4))`;
             }
         }
     });
@@ -44,43 +97,55 @@ document.addEventListener('DOMContentLoaded', function() {
             isDragging = false;
             isAnimating = true;
             const bounceHeight = Math.min(currentDeltaY * 1.5, 200);
-            discSurface.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            ball.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            discSurface.style.transform = 'translateY(0) scaleY(0.7) scaleX(1)';
-            discSurface.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.2)';
-            ball.style.transform = 'translateY(0)';
+            discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            discSvg.style.transform = 'scaleY(1)';
+            discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
             
-            setTimeout(() => {
-                ball.style.transition = 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                ball.style.transform = `translateY(-${bounceHeight}px)`;
+            // 红球弹起动画 - 使用SVG属性
+            ball.style.transition = 'none';
+            let startTime = null;
+            const duration = 900; // 总动画时间
+            
+            function animateBall(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = (timestamp - startTime) / duration;
                 
-                setTimeout(() => {
-                    ball.style.transition = 'all 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53)';
-                    ball.style.transform = 'translateY(0)';
-                    
-                    setTimeout(() => {
-                        isAnimating = false;
-                    }, 500);
-                }, 400);
-            }, 300);
+                if (progress < 1) {
+                    // 弹起阶段 (0-0.44)
+                    if (progress < 0.44) {
+                        const bounceProgress = progress / 0.44;
+                        const y = ballInitialY - bounceHeight * Math.sin(bounceProgress * Math.PI);
+                        ball.setAttribute('cy', y);
+                    } 
+                    // 下落阶段 (0.44-1)
+                    else {
+                        const fallProgress = (progress - 0.44) / 0.56;
+                        const y = ballInitialY - bounceHeight * Math.sin((1 - fallProgress) * Math.PI / 2);
+                        ball.setAttribute('cy', y);
+                    }
+                    requestAnimationFrame(animateBall);
+                } else {
+                    ball.setAttribute('cy', ballInitialY);
+                    isAnimating = false;
+                }
+            }
+            
+            requestAnimationFrame(animateBall);
         } else if (isDragging) {
             isDragging = false;
-            discSurface.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            ball.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            discSurface.style.transform = 'translateY(0) scaleY(0.7) scaleX(1)';
-            discSurface.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.2)';
-            ball.style.transform = 'translateY(0)';
+            discSvg.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            discSvg.style.transform = 'scaleY(1)';
+            discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
         }
     });
     
-    // 触摸事件
-    ball.addEventListener('touchstart', function(e) {
+    // 触摸事件 - 拖动绿绳
+    discRope.addEventListener('touchstart', function(e) {
         if (isAnimating) return;
         isDragging = true;
         startY = e.touches[0].clientY;
         currentDeltaY = 0;
-        discSurface.style.transition = 'none';
-        ball.style.transition = 'none';
+        discSvg.style.transition = 'none';
         e.preventDefault();
     });
     
@@ -89,18 +154,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const deltaY = e.touches[0].clientY - startY;
             if (deltaY > 0) {
                 currentDeltaY = deltaY;
-                ball.style.transform = `translateY(${deltaY}px)`;
                 const depth = deltaY;
-                // 计算变形参数
-                const scaleY = Math.max(0.6, 1 - depth / 150); // 垂直方向压缩
-                const scaleX = 1 + depth / 300; // 水平方向稍微拉伸
-                const translateY = depth * 0.3; // 整体向下移动
                 
-                // 应用变换，形成碗状凹陷效果
-                discSurface.style.transform = `translateY(${translateY}px) scaleY(${scaleY}) scaleX(${scaleX})`;
+                // 检查是否超过最大拖动距离
+                if (depth >= maxDragDistance) {
+                    // 脱手弹回
+                    triggerBounce();
+                    return;
+                }
                 
-                // 调整阴影，增强立体感
-                discSurface.style.boxShadow = `0 ${depth / 8}px ${depth / 4}px rgba(0, 0, 0, 0.3), inset 0 ${depth / 4}px ${depth / 2}px rgba(0, 0, 0, 0.3)`;
+                // 倒帐篷效果：减小形变程度
+                const scaleY = 1 + depth / 200;
+                discSvg.style.transform = `scaleY(${scaleY})`;
+                
+                // 调整阴影
+                discSvg.style.filter = `drop-shadow(0 ${depth / 3}px ${depth / 2}px rgba(0, 0, 0, 0.4))`;
             }
         }
     });
@@ -110,32 +178,45 @@ document.addEventListener('DOMContentLoaded', function() {
             isDragging = false;
             isAnimating = true;
             const bounceHeight = Math.min(currentDeltaY * 1.5, 200);
-            discSurface.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            ball.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            discSurface.style.transform = 'translateY(0) scaleY(0.7) scaleX(1)';
-            discSurface.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.2)';
-            ball.style.transform = 'translateY(0)';
+            discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            discSvg.style.transform = 'scaleY(1)';
+            discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
             
-            setTimeout(() => {
-                ball.style.transition = 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                ball.style.transform = `translateY(-${bounceHeight}px)`;
+            // 红球弹起动画 - 使用SVG属性
+            ball.style.transition = 'none';
+            let startTime = null;
+            const duration = 900; // 总动画时间
+            
+            function animateBall(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = (timestamp - startTime) / duration;
                 
-                setTimeout(() => {
-                    ball.style.transition = 'all 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53)';
-                    ball.style.transform = 'translateY(0)';
-                    
-                    setTimeout(() => {
-                        isAnimating = false;
-                    }, 500);
-                }, 400);
-            }, 300);
+                if (progress < 1) {
+                    // 弹起阶段 (0-0.44)
+                    if (progress < 0.44) {
+                        const bounceProgress = progress / 0.44;
+                        const y = ballInitialY - bounceHeight * Math.sin(bounceProgress * Math.PI);
+                        ball.setAttribute('cy', y);
+                    } 
+                    // 下落阶段 (0.44-1)
+                    else {
+                        const fallProgress = (progress - 0.44) / 0.56;
+                        const y = ballInitialY - bounceHeight * Math.sin((1 - fallProgress) * Math.PI / 2);
+                        ball.setAttribute('cy', y);
+                    }
+                    requestAnimationFrame(animateBall);
+                } else {
+                    ball.setAttribute('cy', ballInitialY);
+                    isAnimating = false;
+                }
+            }
+            
+            requestAnimationFrame(animateBall);
         } else if (isDragging) {
             isDragging = false;
-            discSurface.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            ball.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            discSurface.style.transform = 'translateY(0) scaleY(0.7) scaleX(1)';
-            discSurface.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.2)';
-            ball.style.transform = 'translateY(0)';
+            discSvg.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            discSvg.style.transform = 'scaleY(1)';
+            discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
         }
     });
 });

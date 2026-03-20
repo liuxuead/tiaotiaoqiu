@@ -9,7 +9,14 @@
 <body>
     <div class="game-container">
         <div class="elastic-disc">
-            <div class="center-ball"></div>
+            <svg class="disc-svg" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet">
+                <!-- 倒帐篷形状 -->
+                <path class="disc-shape" d="M 200 180 L 380 20 Q 200 60 20 20 Z" fill="#4CAF50" />
+                <!-- 红球 -->
+                <circle class="center-ball" cx="200" cy="164" r="8" fill="#ff4444" />
+                <!-- 底部绿绳 -->
+                <line class="disc-rope" x1="200" y1="188" x2="200" y2="210" stroke="#388E3C" stroke-width="16" stroke-linecap="round" />
+            </svg>
         </div>
     </div>
     <script src="script.js"></script>
