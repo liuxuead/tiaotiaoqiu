@@ -18,11 +18,11 @@ body {
 
 .elastic-disc {
     position: absolute;
-    top: 50%;
+    top: 35%;
     left: 50%;
     transform: translateX(-50%);
-    width: 50%;
-    height: 200px;
+    width: 80%;
+    height: 60vh;
     background-color: transparent;
     display: flex;
     align-items: center;
