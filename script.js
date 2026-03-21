@@ -35,11 +35,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentDeltaY = 0;
     let isAnimating = false;
     
-    // 初始红球位置
-    const ballInitialY = 70;
+    // 初始红球位置（放大3倍）
+    const ballInitialY = 210;
     
-    // 最大拖动距离（八个绿绳长度 = 22 * 8 = 176像素）
-    const maxDragDistance = 176;
+    // 最大拖动距离（放大3倍）
+    const maxDragDistance = 528;
     
     // 颜色定义
     const colors = {
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         isDragging = false;
         isAnimating = true;
-        const bounceHeight = Math.min(currentDeltaY * 2, 480); // 最大力时弹起10个自身高度（48px * 10）
+        const bounceHeight = Math.min(currentDeltaY * 2, 1440); // 最大力时弹起10个自身高度（144px * 10）
         discSvg.style.transition = 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
         discSvg.style.transform = 'scaleY(1)';
         discSvg.style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))';
